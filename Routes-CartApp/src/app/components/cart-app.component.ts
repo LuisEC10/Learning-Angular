@@ -4,19 +4,18 @@ import { Product } from '../models/product';
 import { CatalogComponent } from './catalog/catalog.component';
 import { CartItem } from '../models/cartItem';
 import { NavbarComponent } from './navbar/navbar.component';
-import { CartModalComponent } from './cart-modal/cart-modal.component';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'cart-app',
-  imports: [CatalogComponent, CartModalComponent, NavbarComponent],
+  imports: [CatalogComponent, NavbarComponent, RouterOutlet],
   templateUrl: './cart-app.component.html',
 })
 export class CartAppComponent implements OnInit{
 
   products:Product[] = [];
   items: CartItem[] = [];
-  // total: number = 0;
-  showCart: boolean = false;
+  total: number = 0;
 
   constructor(private service: ProductService) {
 
@@ -24,7 +23,7 @@ export class CartAppComponent implements OnInit{
   ngOnInit(): void {
     this.products = this.service.findAll();
     this.items = JSON.parse(sessionStorage.getItem('cart') || "[]");
-    // this.calculateTotal();
+    this.calculateTotal();
   }
 
   onAddCart(product: Product): void {
@@ -44,8 +43,8 @@ export class CartAppComponent implements OnInit{
     }else {
       this.items = [... this.items, {product: {... product}, quantity:1}];
     }
-    // this.calculateTotal();
-    // this.saveSession();
+    this.calculateTotal();
+    this.saveSession();
   }
 
   onDeleteCart(id: number): void { 
@@ -54,20 +53,16 @@ export class CartAppComponent implements OnInit{
       sessionStorage.removeItem('cart');
       // sessionStorage.clear();
     }
-    // this.calculateTotal();
-    // this.saveSession();
+    this.calculateTotal();
+    this.saveSession();
   }
 
-  // calculateTotal(): void { 
-  //   this.total = this.items.reduce((acumulator, item) => acumulator + item.quantity * item.product.price, 0);
-  // }
+  calculateTotal(): void { 
+    this.total = this.items.reduce((acumulator, item) => acumulator + item.quantity * item.product.price, 0);
+  }
 
-  // saveSession(): void { 
-  //   sessionStorage.setItem('cart', JSON.stringify(this.items));
-  // }
-
-  openCart(): void { 
-    this.showCart = !this.showCart;
+  saveSession(): void { 
+    sessionStorage.setItem('cart', JSON.stringify(this.items));
   }
 
 }
